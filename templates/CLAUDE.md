@@ -2,7 +2,7 @@
 
 <!--
 Template from claude-shared-rules. The shared rules (language, Git, documentation,
-public-repository safety, GitHub workflow, paid services, overrides) load from ~/.claude/rules/shared/.
+public-repository safety, GitHub workflow, paid services, deployment, overrides) load from ~/.claude/rules/shared/.
 Do not copy them here. Keep only rules specific to this project, then delete this comment.
 -->
 
@@ -26,6 +26,11 @@ If any path does not exist, report it rather than silently inventing its content
 
 ## Workflow
 <!-- How work is planned and reported in this project (phases, prompts, acceptance criteria). -->
+
+## Deployment
+<!-- Host and Git integration, and which branch push deploys to production, e.g.
+"Every push to `main` is a production deploy through Cloudflare Pages." Or "Not deployed." -->
+
 
 ## Overrides of shared rules
 None.
