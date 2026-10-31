@@ -6,6 +6,7 @@
 - Working docs (`docs/working/`): apply "Conclusion first" and "Sentences". Layering and diagrams are optional.
 - Does not apply to Claude-only files (see `documentation.md`), rule files, prompts, or design and implementation instructions written for Claude. Write those for Claude's reading efficiency: dense, explicit, unambiguous, no padding for human comfort.
 - Commit messages follow `git.md`.
+- Never applies to product text: UI strings, translation and locale files, messages, emails, and notifications shown to users, in-app help, marketing copy, and any content the product serves. Their language, tone, and form (for example です・ます in a Japanese UI) follow the project's own rules, as `language.md` says for product UI localization.
 
 ## Layering
 
@@ -50,7 +51,7 @@
 
 ## Japanese text
 
-- This section is about documents only. Conversation with the owner stays in natural, polite Japanese (see `language.md`).
+- This section is about the documents in Scope only. It does not cover conversation with the owner (see `language.md`) or product text.
 - Write natural Japanese, not translationese. A translation keeps the English doc's facts, sections, lists, and diagrams. Within a section, it is written anew from the meaning, the way a Japanese engineer would explain it.
 - Translate paragraph by paragraph, not sentence by sentence. Sentence count and order inside a paragraph may differ from the English; merge, split, or reorder freely.
 - Drop what only English needs: "you" and "we" as subjects, "this page/section", "note that", "simply", stacked "and/or". Do not render English noun phrases as long 「〜の〜の〜」 chains; turn them into verbs.
