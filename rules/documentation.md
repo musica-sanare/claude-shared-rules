@@ -13,6 +13,7 @@ When a document's class is unclear, ask the owner.
 ## Source of truth and translation
 
 - English is the source of truth. Read and design from the English version.
+- Docs exist in English and Japanese only. Do not add other doc translations; each one multiplies the cost of every doc change. Product UI locales are separate (see `language.md`).
 - Every file in `docs/en/` has a twin with the same name in `docs/ja/`, and `docs/ja/` contains nothing else.
 - Any change to an English stable doc updates its Japanese twin in the same commit. If the translation cannot be done right away, tell the owner; never leave it silently stale.
 - Each Japanese doc records the English content it was translated from as its first line, using the Git blob hash of the English file (`git hash-object <file>`, which works before committing):
