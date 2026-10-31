@@ -1,4 +1,4 @@
-<!-- source: docs/en/SETUP.md blob c341657c1b76365a8fd277ad93c7d3117755aeaf -->
+<!-- source: docs/en/SETUP.md blob acc927f1af865816572cadac06125ec2fcbbdb30 -->
 [English](../en/SETUP.md) | 日本語 · [目次に戻る](README.md)
 
 > この文書は[英語版](../en/SETUP.md)の翻訳。内容が異なる場合は英語版が優先する。
@@ -85,7 +85,7 @@ rm ~/.claude/rules/shared
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Bash|mcp__.*",
         "hooks": [
           {
             "type": "command",
@@ -101,11 +101,16 @@ rm ~/.claude/rules/shared
 
 - `"attribution": false`：Claude Code が既定で付けるコミットのトレーラーと PR の帰属表示を消す。
 - `Bash(git push *)`：`git push` で始まるコマンドの前に、auto モードでも確認が入る。`git -C . push` のような別の書き方は拾えないので、あくまで安全網と考える。
-- `PreToolUse` フック：Bash コマンドを実行するたびに、その前に[課金ガード](#課金ガード)を走らせる。`"onFailure": "block"` で安全側に倒す。スクリプトが無い・壊れているときは、チェックなしで通すのではなく Bash コマンドを止める。
+- `PreToolUse` フック：Bash コマンドと、ブラウザを含む MCP ツールの呼び出しの前に、毎回[課金ガード](#課金ガード)を走らせる。`"onFailure": "block"` で安全側に倒す。スクリプトが無い・壊れているときは、チェックなしで通すのではなくその呼び出しを止める。
 
 ### 課金ガード
 
-[`hooks/billing-guard.sh`](../../hooks/billing-guard.sh) は、課金につながりうる Bash コマンドを、オーナーが判断するまで止める。[`rules/paid-services.md`](../../rules/paid-services.md) を強制するためのものだ。引っかかったときの動きは権限モードで変わる：
+[`hooks/billing-guard.sh`](../../hooks/billing-guard.sh) は、課金につながりうるツール呼び出しを、オーナーが判断するまで止める。[`rules/paid-services.md`](../../rules/paid-services.md) を強制するためのものだ。2 つの部分からなる：
+
+- **請求やプランのページ・ツールは、どの権限モードでも常に止める。** 対象は、MCP ツールが開く `url` に請求、プラン、アップグレード、サブスクリプション、支払い、チェックアウト、購入、請求書のパスがある呼び出しだ。ブラウザで開く Cloudflare や Google Cloud の請求ページなどがこれにあたる。ツール名にそうした語を含む MCP ツールも止める。プランや請求を変えるのはオーナーだけだ。
+- **課金につながりうる Bash コマンド**は、権限モードに応じて確認するか止める。
+
+Bash コマンドで引っかかったときの動きは、権限モードで変わる：
 
 | 権限モード | 引っかかったときの動き |
 |---|---|
@@ -118,17 +123,28 @@ rm ~/.claude/rules/shared
 次のコマンドが対象になる：
 
 - 有料の AI やクラウドサービスのパッケージを入れる・実行する（`pip install anthropic`、`npm i @anthropic-ai/sdk` など）
-- 有料 API のエンドポイントを含む（`api.anthropic.com`、`api.openai.com` など）
-- クラウドやホスティングの CLI を実行する（`aws`、`gcloud`、`az`、`firebase`、`vercel` など）。`--version` や `--help` だけのものは除く
+- 有料 API やクラウド API のエンドポイントを含む（`api.anthropic.com`、`api.openai.com`、`api.cloudflare.com` など）
+- クラウドやホスティングの CLI を実行する（`aws`、`gcloud`、`az`、`firebase`、`vercel`、`wrangler` など。`npx` などの経由も含む）。`--version` や `--help` だけのものは除く
 - インフラを適用する（`terraform apply`、`pulumi up`、`cdk deploy` など）
 
 次のものは検出できない：
 
 - 実行すると有料 API を呼ぶコード（環境変数に API キーがある状態での `python app.py` など）
 - 引数なしの `npm install` や `pip install -r requirements.txt` で入るパッケージ
-- Bash 以外のツール（MCP サーバーなど）
+- スクリプト名の陰にあるコマンド（`npm run deploy` など）
+- 画面遷移の呼び出しを使わずに請求ページへ行くブラウザのクリック（ダッシュボード内のリンク経由など）。ルールでは引き続き禁止している
 
 `bash` が必要だ。`jq` が無いと権限モードを読めないため、引っかかったものはすべて止める。誤検出もありうる（`pip install openai` に触れたコミットメッセージなど）。検出対象を変えるときは、スクリプト冒頭のパターンを編集する。
+
+### 請求の権限を持たない認証情報
+
+Claude には、請求を変更できない認証情報だけを渡す。これが最終防衛線になる。ルールやフックは経路を見落とすことがあるが、請求の権限が無い認証情報なら、どの経路からでもプランは変えられない。
+
+- **トークンとキー**：作業に必要な最小限の権限で作る。請求、プラン、支払い、アカウント管理の権限は外す。たとえば Billing 権限を付けない Cloudflare の API トークンや、請求関連のロールを持たない Google Cloud のサービスアカウントだ。
+- **ブラウザのログイン**：Claude が操作するブラウザ（内蔵ブラウザや Claude in Chrome）では、請求を変更できるアカウントにログインしない。Claude がダッシュボードを使う必要があるなら、請求の権限を持たないメンバーのアカウントを使う。
+- **手元の CLI のログイン**：アカウントのオーナーとしてログインした CLI（`wrangler login` や `gcloud auth login` など）は、Claude が実行するとオーナーの全権限で動く。Claude が作業するプロジェクトでは、権限を絞ったトークンを環境変数で渡す方を選ぶ。
+
+Claude も認証情報を求めるときはこのやり方に従う。必要最小限の権限を示し、請求の権限は外すよう伝える（[`rules/paid-services.md`](../../rules/paid-services.md)）。
 
 ## オプションのルール
 

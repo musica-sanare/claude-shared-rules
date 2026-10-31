@@ -82,7 +82,7 @@ Rules guide Claude but enforce nothing. These settings enforce three of them: no
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Bash|mcp__.*",
         "hooks": [
           {
             "type": "command",
@@ -98,11 +98,16 @@ Rules guide Claude but enforce nothing. These settings enforce three of them: no
 
 - `"attribution": false` hides the commit trailer and PR attribution Claude Code adds by default.
 - `Bash(git push *)` makes Claude Code ask before any command that starts with `git push`, even in auto mode. It misses pushes written another way, such as `git -C . push`, so treat it as a safety net.
-- The `PreToolUse` hook runs the [billing guard](#billing-guard) before every Bash command. `"onFailure": "block"` fails closed: if the script is missing or broken, Bash commands are blocked instead of running unchecked.
+- The `PreToolUse` hook runs the [billing guard](#billing-guard) before every Bash command and MCP tool call, including the browser tools. `"onFailure": "block"` fails closed: if the script is missing or broken, those calls are blocked instead of running unchecked.
 
 ### Billing guard
 
-[`hooks/billing-guard.sh`](../../hooks/billing-guard.sh) stops Bash commands that may lead to charges until you decide. It enforces [`rules/paid-services.md`](../../rules/paid-services.md). What happens depends on the permission mode:
+[`hooks/billing-guard.sh`](../../hooks/billing-guard.sh) stops tool calls that may lead to charges until you decide. It enforces [`rules/paid-services.md`](../../rules/paid-services.md). It has two parts:
+
+- **Billing pages and tools are always blocked**, in every permission mode. This covers an MCP tool call whose `url` has a billing, plan, upgrade, subscription, payment, checkout, purchase, or invoice path, such as a Cloudflare or Google Cloud billing page in the browser. It also covers an MCP tool whose name contains such a word. Only you change plans or billing.
+- **Bash commands that may incur charges** are asked about or blocked, depending on the permission mode.
+
+For Bash commands, what happens depends on the permission mode:
 
 | Permission mode | Result of a match |
 |---|---|
@@ -115,17 +120,28 @@ Rules guide Claude but enforce nothing. These settings enforce three of them: no
 It matches when a command:
 
 - installs or runs a package for a paid AI or cloud service, such as `pip install anthropic` or `npm i @anthropic-ai/sdk`;
-- contains a paid API endpoint, such as `api.anthropic.com` or `api.openai.com`;
-- runs a cloud or hosting CLI (`aws`, `gcloud`, `az`, `firebase`, `vercel`, and others), except a bare `--version` or `--help`;
+- contains a paid or cloud API endpoint, such as `api.anthropic.com`, `api.openai.com`, or `api.cloudflare.com`;
+- runs a cloud or hosting CLI (`aws`, `gcloud`, `az`, `firebase`, `vercel`, `wrangler`, and others), also through `npx` and similar runners, except a bare `--version` or `--help`;
 - applies infrastructure (`terraform apply`, `pulumi up`, `cdk deploy`, and others).
 
 It cannot see:
 
 - code that calls a paid API when run, such as `python app.py` with an API key in the environment;
 - packages pulled in by a plain `npm install` or `pip install -r requirements.txt`;
-- tools other than Bash, such as MCP servers.
+- commands hidden behind a script name, such as `npm run deploy`;
+- browser clicks that reach a billing page without a navigation call, such as a link inside a dashboard. The rule still forbids this.
 
 It needs `bash`. Without `jq` it cannot read the permission mode, so every match is blocked. A match can be a false positive, such as a commit message that mentions `pip install openai`. To change what it catches, edit the patterns at the top of the script.
+
+### Credentials without billing access
+
+Give Claude only credentials that cannot change billing. This is the last line of defense: the rule and the hook can miss a path, but a credential without billing permission cannot change a plan by any path.
+
+- **Tokens and keys**: create them with the minimum permissions the task needs. Leave out billing, plan, payment, and account-admin permissions. For example, a Cloudflare API token without the Billing permission, or a Google Cloud service account without billing roles.
+- **Browser sign-ins**: do not sign in to an account that can change billing in a browser Claude controls (the built-in browser or Claude in Chrome). If Claude needs a dashboard, use a member account without billing access.
+- **Local CLI logins**: a CLI that you logged in to as an account owner (for example `wrangler login` or `gcloud auth login`) acts with your full rights when Claude runs it. Prefer a scoped token in an environment variable for the projects Claude works on.
+
+Claude asks for credentials this way too: it names the minimum permissions and excludes billing ([`rules/paid-services.md`](../../rules/paid-services.md)).
 
 ## Optional rules
 
