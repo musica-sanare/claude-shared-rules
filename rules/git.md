@@ -21,6 +21,11 @@
   1. `Change:` what changed.
   2. `Reason:` why it was necessary or what problem it addresses.
   3. `Handoff:` follow-up work, open issues, or limitations the next contributor needs. `None.` if there is nothing.
+- Body format: a single nested bullet list that stays valid Markdown and reads well as plain text:
+  - Each section is a top-level item (`- Change:`), with its points as sub-items (`  - ...`), even when there is only one point.
+  - Indent two spaces per level; use at most three levels.
+  - Wrap at about 72 characters. Indent a wrapped line to the first character of its item's text (2 spaces deeper than that item's `-`). Never start a wrapped line with `-`, `*`, `+`, `#`, `>`, or a number followed by `.` or `)`.
+  - Put exactly one blank line between the top-level items and none elsewhere in the list. No headings, tables, bold, or links; inline code in backticks is fine.
 - When details are recorded in docs, ADRs, or code, reference them (file path plus heading, or ADR number) instead of repeating them. Reference only files and headings that exist in the commit and actually contain the information. The message must still convey the change and its reason on its own.
 
 ## Attribution
