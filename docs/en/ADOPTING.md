@@ -56,7 +56,7 @@ Also list data files read by code that live under `docs/`; they move out (for ex
 ### 6. Translate stable docs
 
 - [ ] For each file in `docs/en/`, write `docs/ja/<same name>` with the header, the translation notice, and the `source` comment holding `git hash-object docs/en/<name>`.
-- [ ] Translate the meaning, not word for word. Keep code, commands, paths, and identifiers unchanged.
+- [ ] Translate the meaning, not word for word, following [`rules/writing-style.md`](../../rules/writing-style.md). Keep code, commands, paths, and identifiers unchanged.
 
 ### 7. Slim the project `CLAUDE.md`
 
@@ -79,6 +79,10 @@ Also list data files read by code that live under `docs/`; they move out (for ex
 
 - [ ] Steps 3 to 8 change English docs, so their Japanese twins go in the same commit. A reasonable split is: commit 2 for references, headers, indexes, translations, and READMEs; commit 3 for the `CLAUDE.md` changes.
 - [ ] Commits made before adoption keep their messages; do not rewrite history to match the new conventions.
+
+## Improving readability
+
+After adoption, or for a project that already follows the layout, have a session in the project follow [`prompts/reformat-human-docs.md`](../../prompts/reformat-human-docs.md). It rewrites the human-facing docs to [`rules/writing-style.md`](../../rules/writing-style.md) without changing their facts.
 
 ## Checks
 

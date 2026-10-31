@@ -18,7 +18,7 @@ The first line records the English file it was translated from. Get the hash wit
 <!-- source: docs/en/SPEC.md blob <hash> -->
 [English](../en/SPEC.md) | 日本語 · [目次に戻る](README.md)
 
-> この文書は[英語版](../en/SPEC.md)の翻訳です。内容が異なる場合は英語版が優先されます。
+> この文書は[英語版](../en/SPEC.md)の翻訳。内容が異なる場合は英語版が優先する。
 
 # 仕様
 ```
@@ -41,7 +41,7 @@ English | [日本語](README.ja.md)
 <!-- source: README.md blob <hash> -->
 [English](README.md) | 日本語
 
-> この文書は[英語版](README.md)の翻訳です。内容が異なる場合は英語版が優先されます。
+> この文書は[英語版](README.md)の翻訳。内容が異なる場合は英語版が優先する。
 ```
 
 ## Working docs (`docs/working/*.md`)

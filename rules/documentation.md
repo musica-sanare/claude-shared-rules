@@ -1,6 +1,6 @@
 # Documentation
 
-Human-readable docs form a small site navigable by links, with an English master and a Japanese translation.
+Human-readable docs form a small site navigable by links, with an English master and a Japanese translation. How to write them: `writing-style.md`.
 
 ## Classes of Markdown
 

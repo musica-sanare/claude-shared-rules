@@ -1,4 +1,4 @@
-<!-- source: docs/en/README.md blob b51a1272fc34d86c09a426e6538cee5a61a5d320 -->
+<!-- source: docs/en/README.md blob 688c114853eee925281b55907b02769138295b6e -->
 [English](../en/README.md) | 日本語 · [リポジトリの README](../../README.ja.md)
 
 > この文書は[英語版](../en/README.md)の翻訳です。内容が異なる場合は英語版が優先されます。
@@ -21,6 +21,7 @@
 |---|---|
 | [`rules/`](../../rules/) | Claude がすべてのプロジェクトで読み込むルールファイル。ここにはルールファイルだけを置く。 |
 | [`templates/`](../../templates/) | プロジェクトが導入時にコピーするファイル：`CLAUDE.md` の雛形、ドキュメント索引のテンプレート、文書ヘッダーのスニペット。 |
+| [`prompts/`](../../prompts/) | 各プロジェクトの Claude Code セッションが従う作業手順。例：ドキュメントを読みやすく書き直す。 |
 
 ## 作業用ドキュメント（英語のみ）
 

@@ -2,7 +2,7 @@ English | [日本語](README.ja.md)
 
 # claude-shared-rules
 
-Claude Code rules shared by every project on the owner's machine: conversation and repository language, Git and commit conventions, a bilingual documentation layout, public-repository safety, and GitHub workflow. They are activated once through `~/.claude/rules/` and can be extended, overridden, or opted out of per project.
+Claude Code rules shared by every project on the owner's machine: conversation and repository language, Git and commit conventions, a bilingual documentation layout and writing style, public-repository safety, and GitHub workflow. They are activated once through `~/.claude/rules/` and can be extended, overridden, or opted out of per project.
 
 **Status:** initial version; not yet activated.
 

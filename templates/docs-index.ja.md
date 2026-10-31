@@ -1,7 +1,7 @@
 <!-- source: docs/en/README.md blob <hash> -->
 [English](../en/README.md) | 日本語 · [リポジトリの README](../../README.ja.md)
 
-> この文書は[英語版](../en/README.md)の翻訳です。内容が異なる場合は英語版が優先されます。
+> この文書は[英語版](../en/README.md)の翻訳。内容が異なる場合は英語版が優先する。
 
 # <プロジェクト名> ドキュメント
 

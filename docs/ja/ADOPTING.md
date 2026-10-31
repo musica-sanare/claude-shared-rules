@@ -1,4 +1,4 @@
-<!-- source: docs/en/ADOPTING.md blob 3e109e41e345f5dcdccc771e1b3a2f6944e553bd -->
+<!-- source: docs/en/ADOPTING.md blob f412d542ff548b4923fe39297f5fb44cb6810b57 -->
 [English](../en/ADOPTING.md) | 日本語 · [目次に戻る](README.md)
 
 > この文書は[英語版](../en/ADOPTING.md)の翻訳です。内容が異なる場合は英語版が優先されます。
@@ -59,7 +59,7 @@
 ### 6. 安定ドキュメントを翻訳する
 
 - [ ] `docs/en/` の各ファイルについて、ヘッダー、翻訳の注記、`git hash-object docs/en/<name>` の値を入れた `source` コメントを付けて `docs/ja/<同じ名前>` を書く。
-- [ ] 逐語訳ではなく意味を訳す。コード、コマンド、パス、識別子は変えない。
+- [ ] 逐語訳ではなく意味を訳す。書き方は [`rules/writing-style.md`](../../rules/writing-style.md) に従う。コード、コマンド、パス、識別子は変えない。
 
 ### 7. プロジェクトの `CLAUDE.md` を絞り込む
 
@@ -82,6 +82,10 @@
 
 - [ ] 手順 3〜8 は英語のドキュメントを変更するので、日本語の対応ファイルも同じコミットに入れる。分け方の目安：コミット 2 に参照の修正、ヘッダー、索引、翻訳、README。コミット 3 に `CLAUDE.md` の変更。
 - [ ] 導入前に作られたコミットのメッセージはそのままにする。新しい規約に合わせるために履歴を書き換えない。
+
+## 読みやすさの改善
+
+導入後、またはすでにこの構成になっているプロジェクトでは、そのプロジェクトのセッションに [`prompts/reformat-human-docs.md`](../../prompts/reformat-human-docs.md) の手順を実行させる。人向けのドキュメントを、事実は変えずに [`rules/writing-style.md`](../../rules/writing-style.md) に沿って書き直す。
 
 ## チェック
 
