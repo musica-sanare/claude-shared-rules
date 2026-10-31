@@ -105,6 +105,25 @@ To opt out, remove the link:
 rm ~/.claude/rules/conversation-kansai.md
 ```
 
+### On a machine without the shared rules
+
+An optional rule also works alone, for example on a work machine whose projects follow an organization's rules. Copy the file into your own `~/.claude/rules/`:
+
+```bash
+mkdir -p ~/.claude/rules
+```
+
+```bash
+curl -fsSL -o ~/.claude/rules/conversation-kansai.md https://raw.githubusercontent.com/musica-sanare/claude-shared-rules/main/optional/conversation-kansai.md
+```
+
+- `~/.claude/rules/` belongs to your user account on that machine. Nothing goes into the organization's settings or any repository.
+- The file states its own precedence: organization, project, and skill rules on tone and on the wording of commits, PRs, docs, and messages win over it. Only your conversation with Claude changes.
+- To stop, delete the file. Updates are not automatic; copy it again to get a newer version.
+
+> [!NOTE]
+> Check your organization's policy on personal Claude Code settings before adding the file. This setup has not been tried on a work machine yet.
+
 ## New machine
 
 1. Install Git and Claude Code, and sign in to GitHub.

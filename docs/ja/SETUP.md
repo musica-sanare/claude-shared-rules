@@ -1,4 +1,4 @@
-<!-- source: docs/en/SETUP.md blob 563db35a84913f7a18d3c9b72bca8ee195e4aa63 -->
+<!-- source: docs/en/SETUP.md blob 7bd0ec24f15a3c6fa0b94ce72d0dff08499b3fde -->
 [English](../en/SETUP.md) | 日本語 · [目次に戻る](README.md)
 
 > この文書は[英語版](../en/SETUP.md)の翻訳。内容が異なる場合は英語版が優先する。
@@ -107,6 +107,25 @@ ln -s ~/repos/claude-shared-rules/optional/conversation-kansai.md ~/.claude/rule
 ```bash
 rm ~/.claude/rules/conversation-kansai.md
 ```
+
+### 共有ルールを入れていないマシンで使う
+
+オプションのルールは単独でも使える。例えば、組織のルールに従うプロジェクトしかない職場のマシンでもよい。自分の `~/.claude/rules/` にファイルをコピーする：
+
+```bash
+mkdir -p ~/.claude/rules
+```
+
+```bash
+curl -fsSL -o ~/.claude/rules/conversation-kansai.md https://raw.githubusercontent.com/musica-sanare/claude-shared-rules/main/optional/conversation-kansai.md
+```
+
+- `~/.claude/rules/` はそのマシンの自分のユーザーアカウントだけの設定だ。組織の設定にもリポジトリにも何も入らない。
+- 優先順位はファイル自体に書いてある。口調や、コミット・PR・ドキュメント・メッセージの文言について組織・プロジェクト・スキルのルールがあれば、そちらが勝つ。変わるのは Claude との会話だけだ。
+- やめるときはファイルを消す。自動では更新されないので、新しい版が欲しければもう一度コピーする。
+
+> [!NOTE]
+> 入れる前に、個人の Claude Code 設定についての組織の方針を確かめること。この使い方は、まだ職場のマシンで試していない。
 
 ## 新しいマシン
 
