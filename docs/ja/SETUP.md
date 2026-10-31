@@ -1,4 +1,4 @@
-<!-- source: docs/en/SETUP.md blob 8e368c77c4b70b958dbc92cfd32cd0c783222a37 -->
+<!-- source: docs/en/SETUP.md blob 563db35a84913f7a18d3c9b72bca8ee195e4aa63 -->
 [English](../en/SETUP.md) | 日本語 · [目次に戻る](README.md)
 
 > この文書は[英語版](../en/SETUP.md)の翻訳。内容が異なる場合は英語版が優先する。
@@ -88,11 +88,31 @@ rm ~/.claude/rules/shared
 - `"attribution": false`：Claude Code が既定で付けるコミットのトレーラーと PR の帰属表示を消す。
 - `Bash(git push *)`：`git push` で始まるコマンドの前に、auto モードでも確認が入る。`git -C . push` のような別の書き方は拾えないので、あくまで安全網と考える。
 
+## オプションのルール
+
+人によって好みが分かれるルールは `optional/` に置いてあり、既定では読み込まない。使いたいものだけ `~/.claude/rules/` にリンクする。
+
+| ファイル | 効果 |
+|---|---|
+| [`conversation-kansai.md`](../../optional/conversation-kansai.md) | Claude との会話が親しみやすい関西弁になる。ドキュメントやコミットなど、リポジトリに残る文章は変わらない |
+
+使うときはリンクを張り、新しいセッションを開いて `/context` で確かめる：
+
+```bash
+ln -s ~/repos/claude-shared-rules/optional/conversation-kansai.md ~/.claude/rules/conversation-kansai.md
+```
+
+やめるときはリンクを消す：
+
+```bash
+rm ~/.claude/rules/conversation-kansai.md
+```
+
 ## 新しいマシン
 
 1. Git と Claude Code を入れ、GitHub にサインインする。
 2. [インストール](#インストール)の手順を実行する。
-3. 必要なら[推奨設定](#推奨設定)を入れる。
+3. 必要なら[推奨設定](#推奨設定)と[オプションのルール](#オプションのルール)を入れる。
 4. 各プロジェクトをクローンし、どれか一つで[確認](#確認)する。
 
 ## Windows（未検証）
@@ -128,6 +148,7 @@ WSL は Linux と同じで、WSL の中で本文の手順を実行すればよ�
   cmd /c rmdir "$HOME\.claude\rules\shared"
   ```
 
+- **オプションのルール**は単独のファイルで、ジャンクションはディレクトリにしか使えない。ファイルのシンボリックリンク（開発者モードか管理者権限が必要）を張るか、ファイルをコピーする。
 - **チェック用スクリプト**：[共有ルールの導入](ADOPTING.md#チェック)のスクリプトは bash が必要。Git Bash か WSL で実行する。
 
 未解決の点（`要確認`）：

@@ -1,4 +1,4 @@
-<!-- source: docs/en/OVERRIDES.md blob 751a7a0c869fd5ed8e8232189f1fbbb16018a9a2 -->
+<!-- source: docs/en/OVERRIDES.md blob 35fcc146227452af95cd053a664791fc74b1d39a -->
 [English](../en/OVERRIDES.md) | 日本語 · [目次に戻る](README.md)
 
 > この文書は[英語版](../en/OVERRIDES.md)の翻訳。内容が異なる場合は英語版が優先する。
@@ -60,4 +60,4 @@
 
 ## 個人用のルール
 
-オーナーだけが使い、共有しないルールは、`~/.claude/rules/` に別ファイルとして直接置く（`shared` リンクの隣）。優先順位は共有ルールと同じ扱いになる。
+オーナーだけが使い、共有しないルールは、`~/.claude/rules/` に別ファイルとして直接置く（`shared` リンクの隣）。優先順位は共有ルールと同じ扱いになる。このリポジトリのオプションのルールも同じ方法で使う（[セットアップ › オプションのルール](SETUP.md#オプションのルール)）。

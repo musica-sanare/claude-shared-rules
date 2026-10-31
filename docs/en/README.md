@@ -18,6 +18,7 @@ How to install the shared Claude Code rules, adopt them in a project, and overri
 |---|---|
 | [`rules/`](../../rules/) | The rule files Claude loads in every project. Only rule files live here. |
 | [`templates/`](../../templates/) | Files a project copies when adopting the rules: `CLAUDE.md` skeleton, docs index templates, doc header snippets. |
+| [`optional/`](../../optional/) | Opt-in rules that load only when a user links them, such as Kansai-dialect conversation. |
 | [`prompts/`](../../prompts/) | Task prompts a Claude Code session in a project follows, such as rewriting its docs for readability. |
 
 ## Working docs (English only)

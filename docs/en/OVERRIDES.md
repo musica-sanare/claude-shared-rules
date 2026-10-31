@@ -57,4 +57,4 @@ Add a `claudeMdExcludes` pattern to the project's settings:
 
 ## Personal rules
 
-Rules that only the owner wants go directly in `~/.claude/rules/` as separate files, next to the `shared` link. They follow the same precedence as the shared rules.
+Rules that only the owner wants go directly in `~/.claude/rules/` as separate files, next to the `shared` link. They follow the same precedence as the shared rules. Optional rules from this repository are opted into the same way; see [Setup › Optional rules](SETUP.md#optional-rules).

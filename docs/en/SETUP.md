@@ -85,11 +85,31 @@ Rules guide Claude but enforce nothing. These settings enforce two of them: no A
 - `"attribution": false` hides the commit trailer and PR attribution Claude Code adds by default.
 - `Bash(git push *)` makes Claude Code ask before any command that starts with `git push`, even in auto mode. It misses pushes written another way, such as `git -C . push`, so treat it as a safety net.
 
+## Optional rules
+
+Some rules suit only some people, so they live in `optional/` and do not load by default. Link the ones you want into `~/.claude/rules/`.
+
+| File | Effect |
+|---|---|
+| [`conversation-kansai.md`](../../optional/conversation-kansai.md) | Claude talks to you in friendly Kansai dialect. Docs, commits, and other repository text are unaffected. |
+
+To opt in, link the file, then start a new session and check `/context`:
+
+```bash
+ln -s ~/repos/claude-shared-rules/optional/conversation-kansai.md ~/.claude/rules/conversation-kansai.md
+```
+
+To opt out, remove the link:
+
+```bash
+rm ~/.claude/rules/conversation-kansai.md
+```
+
 ## New machine
 
 1. Install Git and Claude Code, and sign in to GitHub.
 2. Follow [Install](#install).
-3. Add the [recommended settings](#recommended-settings) if wanted.
+3. Add the [recommended settings](#recommended-settings) and [optional rules](#optional-rules) if wanted.
 4. Clone the project repositories and [verify](#verify) in one of them.
 
 ## Windows (unverified)
@@ -125,6 +145,7 @@ WSL works like Linux: follow the main instructions inside WSL. For native Window
   cmd /c rmdir "$HOME\.claude\rules\shared"
   ```
 
+- **Optional rules** are single files, and a junction works only for directories. Use a file symlink (needs Developer Mode or administrator rights) or copy the file.
 - **Check scripts** in [Adopting the shared rules](ADOPTING.md#checks) need bash. Run them in Git Bash or WSL.
 
 Open questions (`要確認`):
