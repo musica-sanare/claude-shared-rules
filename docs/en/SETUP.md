@@ -68,7 +68,7 @@ Then remove the [recommended settings](#recommended-settings) if you added them.
 
 ## Recommended settings
 
-Rules guide Claude but enforce nothing. These settings enforce two of them: no AI attribution, and a prompt before every push. Merge them into `~/.claude/settings.json`; do not replace the file.
+Rules guide Claude but enforce nothing. These settings enforce three of them: no AI attribution, a prompt before every push, and a check before commands that may incur charges. Merge them into `~/.claude/settings.json`; do not replace the file.
 
 > [!WARNING]
 > Claude Code before 2.1.281 rejects `"attribution": false` and skips the whole settings file. On older versions, use `{ "attribution": { "commit": "", "pr": "", "sessionUrl": false } }` instead.
@@ -78,12 +78,54 @@ Rules guide Claude but enforce nothing. These settings enforce two of them: no A
   "attribution": false,
   "permissions": {
     "ask": ["Bash(git push *)"]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/repos/claude-shared-rules/hooks/billing-guard.sh",
+            "onFailure": "block"
+          }
+        ]
+      }
+    ]
   }
 }
 ```
 
 - `"attribution": false` hides the commit trailer and PR attribution Claude Code adds by default.
 - `Bash(git push *)` makes Claude Code ask before any command that starts with `git push`, even in auto mode. It misses pushes written another way, such as `git -C . push`, so treat it as a safety net.
+- The `PreToolUse` hook runs the [billing guard](#billing-guard) before every Bash command. `"onFailure": "block"` fails closed: if the script is missing or broken, Bash commands are blocked instead of running unchecked.
+
+### Billing guard
+
+[`hooks/billing-guard.sh`](../../hooks/billing-guard.sh) stops Bash commands that may lead to charges until you decide. It enforces [`rules/paid-services.md`](../../rules/paid-services.md). What happens depends on the permission mode:
+
+| Permission mode | Result of a match |
+|---|---|
+| `default`, `plan`, `acceptEdits` | Claude Code asks you to approve or reject the command. |
+| `auto`, `bypassPermissions`, `dontAsk` | The command is blocked. Claude must tell you what it wanted to run. |
+
+> [!WARNING]
+> In auto mode, a hook's "ask" is resolved without showing you a prompt (observed on 2026-10-31). That is why the guard blocks instead. To run a blocked command, type it yourself with a `!` prefix in the prompt box, or switch to default mode.
+
+It matches when a command:
+
+- installs or runs a package for a paid AI or cloud service, such as `pip install anthropic` or `npm i @anthropic-ai/sdk`;
+- contains a paid API endpoint, such as `api.anthropic.com` or `api.openai.com`;
+- runs a cloud or hosting CLI (`aws`, `gcloud`, `az`, `firebase`, `vercel`, and others), except a bare `--version` or `--help`;
+- applies infrastructure (`terraform apply`, `pulumi up`, `cdk deploy`, and others).
+
+It cannot see:
+
+- code that calls a paid API when run, such as `python app.py` with an API key in the environment;
+- packages pulled in by a plain `npm install` or `pip install -r requirements.txt`;
+- tools other than Bash, such as MCP servers.
+
+It needs `bash`. Without `jq` it cannot read the permission mode, so every match is blocked. A match can be a false positive, such as a commit message that mentions `pip install openai`. To change what it catches, edit the patterns at the top of the script.
 
 ## Optional rules
 
@@ -166,6 +208,7 @@ WSL works like Linux: follow the main instructions inside WSL. For native Window
 
 - **Optional rules** are single files, and a junction works only for directories. Use a file symlink (needs Developer Mode or administrator rights) or copy the file.
 - **Check scripts** in [Adopting the shared rules](ADOPTING.md#checks) need bash. Run them in Git Bash or WSL.
+- **Billing guard** is a bash script. Claude Code runs hooks with Git Bash when it is installed; without it, the hook fails and blocks Bash commands.
 
 Open questions (`要確認`):
 

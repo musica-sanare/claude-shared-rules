@@ -1,4 +1,4 @@
-<!-- source: docs/en/SETUP.md blob 29036cead0141696bcc43f16eed845e633de377b -->
+<!-- source: docs/en/SETUP.md blob c341657c1b76365a8fd277ad93c7d3117755aeaf -->
 [English](../en/SETUP.md) | 日本語 · [目次に戻る](README.md)
 
 > この文書は[英語版](../en/SETUP.md)の翻訳。内容が異なる場合は英語版が優先する。
@@ -71,7 +71,7 @@ rm ~/.claude/rules/shared
 
 ## 推奨設定
 
-ルールは Claude への指針で、強制力はない。次の設定で 2 つのルールを強制できる：AI 帰属表示を付けないことと、push の前に必ず確認すること。`~/.claude/settings.json` に統合し、ファイルごと置き換えないこと。
+ルールは Claude への指針で、強制力はない。次の設定で 3 つのルールを強制できる：AI 帰属表示を付けないこと、push の前に必ず確認すること、課金につながりうるコマンドの前に確認すること。`~/.claude/settings.json` に統合し、ファイルごと置き換えないこと。
 
 > [!WARNING]
 > 2.1.281 より前の Claude Code は `"attribution": false` を受け付けず、設定ファイル全体を読み飛ばす。古いバージョンでは代わりに `{ "attribution": { "commit": "", "pr": "", "sessionUrl": false } }` を使う。
@@ -81,12 +81,54 @@ rm ~/.claude/rules/shared
   "attribution": false,
   "permissions": {
     "ask": ["Bash(git push *)"]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/repos/claude-shared-rules/hooks/billing-guard.sh",
+            "onFailure": "block"
+          }
+        ]
+      }
+    ]
   }
 }
 ```
 
 - `"attribution": false`：Claude Code が既定で付けるコミットのトレーラーと PR の帰属表示を消す。
 - `Bash(git push *)`：`git push` で始まるコマンドの前に、auto モードでも確認が入る。`git -C . push` のような別の書き方は拾えないので、あくまで安全網と考える。
+- `PreToolUse` フック：Bash コマンドを実行するたびに、その前に[課金ガード](#課金ガード)を走らせる。`"onFailure": "block"` で安全側に倒す。スクリプトが無い・壊れているときは、チェックなしで通すのではなく Bash コマンドを止める。
+
+### 課金ガード
+
+[`hooks/billing-guard.sh`](../../hooks/billing-guard.sh) は、課金につながりうる Bash コマンドを、オーナーが判断するまで止める。[`rules/paid-services.md`](../../rules/paid-services.md) を強制するためのものだ。引っかかったときの動きは権限モードで変わる：
+
+| 権限モード | 引っかかったときの動き |
+|---|---|
+| `default`、`plan`、`acceptEdits` | Claude Code が承認か拒否かを尋ねる |
+| `auto`、`bypassPermissions`、`dontAsk` | コマンドを止める。Claude は何を実行しようとしたかをオーナーに伝える |
+
+> [!WARNING]
+> auto モードでは、フックの「ask」は確認ダイアログを出さずに判定される（2026-10-31 に確認）。そのためガードは止める側に倒している。止められたコマンドを実行するには、入力欄で先頭に `!` を付けて自分で打つか、default モードに切り替える。
+
+次のコマンドが対象になる：
+
+- 有料の AI やクラウドサービスのパッケージを入れる・実行する（`pip install anthropic`、`npm i @anthropic-ai/sdk` など）
+- 有料 API のエンドポイントを含む（`api.anthropic.com`、`api.openai.com` など）
+- クラウドやホスティングの CLI を実行する（`aws`、`gcloud`、`az`、`firebase`、`vercel` など）。`--version` や `--help` だけのものは除く
+- インフラを適用する（`terraform apply`、`pulumi up`、`cdk deploy` など）
+
+次のものは検出できない：
+
+- 実行すると有料 API を呼ぶコード（環境変数に API キーがある状態での `python app.py` など）
+- 引数なしの `npm install` や `pip install -r requirements.txt` で入るパッケージ
+- Bash 以外のツール（MCP サーバーなど）
+
+`bash` が必要だ。`jq` が無いと権限モードを読めないため、引っかかったものはすべて止める。誤検出もありうる（`pip install openai` に触れたコミットメッセージなど）。検出対象を変えるときは、スクリプト冒頭のパターンを編集する。
 
 ## オプションのルール
 
@@ -169,6 +211,7 @@ WSL は Linux と同じで、WSL の中で本文の手順を実行すればよ�
 
 - **オプションのルール**は単独のファイルで、ジャンクションはディレクトリにしか使えない。ファイルのシンボリックリンク（開発者モードか管理者権限が必要）を張るか、ファイルをコピーする。
 - **チェック用スクリプト**：[共有ルールの導入](ADOPTING.md#チェック)のスクリプトは bash が必要。Git Bash か WSL で実行する。
+- **課金ガード**は bash スクリプトだ。Git Bash が入っていれば Claude Code はそれでフックを実行する。入っていないとフックが失敗し、Bash コマンドが止まる。
 
 未解決の点（`要確認`）：
 

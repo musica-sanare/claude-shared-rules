@@ -22,4 +22,5 @@ Unexpected charges are the owner's highest-risk concern. Claude never moves towa
 - If a task cannot be done without such a service, say so, explain why, and stop. Until the owner confirms, do not prepare for it: no SDK or client installs, no API calls, no `.env.example` key slots, no infrastructure or config.
 - When a project already uses a paid service, do not expand its use (new endpoints, more calls, larger models, higher tiers, new regions) without the owner's confirmation.
 - Never enter payment details, create billing accounts, raise quotas or spending limits, or upgrade plans. The owner does these.
+- The billing guard hook (`hooks/billing-guard.sh`) may ask the owner about a command or block it. Never work around it: no rewriting, splitting, or obfuscating a command so it no longer matches.
 - When reviewing or reading code that would call a paid service in loops, retries, CI, or scheduled jobs, point out the billing risk to the owner.
