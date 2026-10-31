@@ -50,8 +50,11 @@
 
 ## Japanese text
 
-- Write natural Japanese, not translationese. A translation keeps the English doc's meaning, sections, order, lists, and diagrams, but restructures sentences freely to read naturally.
-- Use the plain form (常体: 「〜する」「〜だ」) everywhere, including notices and link text. Never です・ます; it adds length without meaning. List items and table cells may end in a noun; be consistent within one list or table.
+- This section is about documents only. Conversation with the owner stays in natural, polite Japanese (see `language.md`).
+- Write natural Japanese, not translationese. A translation keeps the English doc's facts, sections, lists, and diagrams. Within a section, it is written anew from the meaning, the way a Japanese engineer would explain it.
+- Translate paragraph by paragraph, not sentence by sentence. Sentence count and order inside a paragraph may differ from the English; merge, split, or reorder freely.
+- Drop what only English needs: "you" and "we" as subjects, "this page/section", "note that", "simply", stacked "and/or". Do not render English noun phrases as long 「〜の〜の〜」 chains; turn them into verbs.
+- Use the plain form (常体: 「〜する」「〜だ」) everywhere in documents, including notices and link text. Never です・ます; it adds length without meaning. List items and table cells may end in a noun; be consistent within one list or table.
 - Avoid: 「〜することができる」 (write 「〜できる」), 「〜を行う」 where a direct verb exists, 「〜である」 where 「〜だ」 or a verb ending is enough, literal passives, long chains of noun modifiers, and katakana where a common Japanese word exists (established technical terms such as コミット stay).
 - Follow the repository's existing punctuation and spacing conventions. If there are none: 「、」「。」, full-width parentheses and colons in Japanese sentences, and a half-width space between Japanese and Latin words or code.
 

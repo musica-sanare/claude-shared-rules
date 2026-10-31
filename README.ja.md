@@ -1,13 +1,13 @@
-<!-- source: README.md blob 50c4b73f741bb6b4e5afb4b930fa437428ecba4e -->
+<!-- source: README.md blob 59adde681f209230f132a4869faf42d585c681a7 -->
 [English](README.md) | 日本語
 
-> この文書は[英語版](README.md)の翻訳です。内容が異なる場合は英語版が優先されます。
+> この文書は[英語版](README.md)の翻訳。内容が異なる場合は英語版が優先する。
 
 # claude-shared-rules
 
-オーナーのマシン上のすべてのプロジェクトで共有する Claude Code のルールです。会話とリポジトリの言語、Git とコミットの規約、二言語のドキュメント構成と書き方、公開リポジトリの安全性、GitHub のワークフローを扱います。`~/.claude/rules/` で一度有効にすれば、プロジェクトごとに追加、上書き、オプトアウトできます。
+オーナーのマシン上の全プロジェクトで共通に使う Claude Code のルール集。会話とリポジトリの言語、Git とコミット、二言語のドキュメントとその書き方、公開リポジトリの安全性、GitHub での作業の進め方を定めている。`~/.claude/rules/` で一度有効にすれば、あとはプロジェクトごとに足したり、上書きしたり、外したりできる。
 
-**状態：** 初版。まだ有効化していません。
+**状態：** 初版。まだ有効化していない。
 
 ## クイックスタート
 
@@ -17,11 +17,11 @@ mkdir -p ~/.claude/rules
 ln -s ~/repos/claude-shared-rules/rules ~/.claude/rules/shared
 ```
 
-その後、新しい Claude Code セッションを開始して `/context` を確認します。詳細：[セットアップ](docs/ja/SETUP.md)。
+そのあと新しい Claude Code セッションを開き、`/context` で読み込まれたか確かめる。詳しくは[セットアップ](docs/ja/SETUP.md)を参照。
 
 ## ドキュメント
 
-- [ドキュメント索引](docs/ja/README.md)
+- [ドキュメントの目次](docs/ja/README.md)
 - [セットアップ](docs/ja/SETUP.md) · [共有ルールの導入](docs/ja/ADOPTING.md) · [上書きとオプトアウト](docs/ja/OVERRIDES.md)
 
 ## ライセンス
