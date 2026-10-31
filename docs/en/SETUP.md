@@ -43,7 +43,7 @@ Personal rules you do not share go directly in `~/.claude/rules/` as separate fi
 
 1. Start a **new** session in any project. Running sessions do not load new or changed rules.
 2. Run `/context`. Every file in `rules/` must appear under **Memory files**:
-   `overrides.md`, `language.md`, `documentation.md`, `writing-style.md`, `git.md`, `public-repo-safety.md`, `github-workflow.md`.
+   `overrides.md`, `language.md`, `documentation.md`, `writing-style.md`, `git.md`, `public-repo-safety.md`, `github-workflow.md`, `paid-services.md`.
 3. Optional: ask Claude which shared rule files it loaded. It should answer in Japanese.
 
 If files are missing, run `ls -la ~/.claude/rules/` and check that the link's target exists.

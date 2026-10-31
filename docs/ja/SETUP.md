@@ -1,4 +1,4 @@
-<!-- source: docs/en/SETUP.md blob 7bd0ec24f15a3c6fa0b94ce72d0dff08499b3fde -->
+<!-- source: docs/en/SETUP.md blob 29036cead0141696bcc43f16eed845e633de377b -->
 [English](../en/SETUP.md) | 日本語 · [目次に戻る](README.md)
 
 > この文書は[英語版](../en/SETUP.md)の翻訳。内容が異なる場合は英語版が優先する。
@@ -46,7 +46,7 @@ flowchart LR
 
 1. 任意のプロジェクトで**新しい**セッションを開く。実行中のセッションは、追加・変更したルールを読み込まない。
 2. `/context` を実行する。**Memory files** に `rules/` の全ファイルが出ていれば成功：
-   `overrides.md`、`language.md`、`documentation.md`、`writing-style.md`、`git.md`、`public-repo-safety.md`、`github-workflow.md`。
+   `overrides.md`、`language.md`、`documentation.md`、`writing-style.md`、`git.md`、`public-repo-safety.md`、`github-workflow.md`、`paid-services.md`。
 3. 任意：読み込んだ共有ルールを Claude に尋ねる。日本語で答えれば正常。
 
 ファイルが出ない場合は、`ls -la ~/.claude/rules/` でリンクとリンク先を確かめる。

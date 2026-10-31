@@ -2,7 +2,7 @@
 
 <!--
 Template from claude-shared-rules. The shared rules (language, Git, documentation,
-public-repository safety, GitHub workflow, overrides) load from ~/.claude/rules/shared/.
+public-repository safety, GitHub workflow, paid services, overrides) load from ~/.claude/rules/shared/.
 Do not copy them here. Keep only rules specific to this project, then delete this comment.
 -->
 
