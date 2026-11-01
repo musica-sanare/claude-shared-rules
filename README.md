@@ -4,7 +4,7 @@ English | [日本語](README.ja.md)
 
 Claude Code rules shared by every project on the owner's machine. They cover conversation and repository language, Git and commits, bilingual docs and their writing style, public-repository safety, GitHub workflow, approval before any paid service, and deployment only through Git integration. Activate them once through `~/.claude/rules/`; each project can then add to, override, or opt out of them.
 
-**Status:** initial version; not yet activated.
+**Status:** in use by the owner and updated as their workflow changes. Shared as a reference; outside contributions are not accepted.
 
 ## Quick start
 

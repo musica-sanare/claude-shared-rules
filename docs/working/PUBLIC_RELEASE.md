@@ -26,7 +26,7 @@ The repository is private. Making it public is the owner's decision and action. 
 
 ## 4. Presentation
 - [x] `LICENSE`: MIT, `Copyright (c) 2026 musica-sanare`. No dependencies.
-- [ ] README status: still "initial version; not yet activated", although the rules are active on the owner's machine. `要確認`: the new status text (English and Japanese).
+- [x] README status: replaced "initial version; not yet activated" with the text the owner chose on 2026-11-01 (English and Japanese).
 - [x] `SECURITY.md`: not needed. The repository has no service or package; the hooks run only on the owner's machine. Private vulnerability reporting is still enabled (section 7).
 - [x] `CONTRIBUTING.md` and templates: not added. The owner decided on 2026-11-01 not to accept outside contributions in general.
 
@@ -51,4 +51,4 @@ The repository is private. Making it public is the owner's decision and action. 
 - [ ] Signed-out browser shows only `main`, `dev`, and the intended files.
 - [ ] README quick start (`git clone https://github.com/musica-sanare/claude-shared-rules.git`) works without credentials.
 - [ ] No secret scanning alerts.
-- [ ] README status updated.
+- [ ] README status still accurate after the switch.
