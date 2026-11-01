@@ -5,9 +5,9 @@
 The repository is private. Making it public is the owner's decision and action. Every item below covers all refs that will be visible on GitHub, not only the current tree. Procedure: [Making a repository public](../en/PUBLIC_RELEASE.md).
 
 ## 1. Scope
-- [x] `git ls-remote origin` listed on 2026-11-01: `main`, `dev`, `refs/pull/1/head`; no tags. `要確認`: the owner confirms that `main` and `dev` are both published.
+- [x] `git ls-remote origin` listed on 2026-11-01: `main`, `dev`, `refs/pull/1/head`; no tags. The owner decided on 2026-11-01 that `main` and `dev` are both published.
 - [x] `refs/pull/1/head` (`049d314`) is an ancestor of `origin/main` and covered by the scan.
-- [ ] Local `dev` is pushed. On 2026-11-01 it was one commit ahead of `origin/dev` (`36493f4`), plus the uncommitted public-release docs.
+- [ ] Local `dev` is pushed. On 2026-11-01 it was ahead of `origin/dev` by `36493f4` and the public-release commits.
 
 ## 2. History
 - [x] Secret scan on 2026-11-01: gitleaks 8.30.1, `gitleaks git --redact -v .`, 15 commits, no leaks found. Repeat with `--log-opts="--all"` on the final commit (section 5).
@@ -28,7 +28,7 @@ The repository is private. Making it public is the owner's decision and action. 
 - [x] `LICENSE`: MIT, `Copyright (c) 2026 musica-sanare`. No dependencies.
 - [ ] README status: still "initial version; not yet activated", although the rules are active on the owner's machine. `要確認`: the new status text (English and Japanese).
 - [x] `SECURITY.md`: not needed. The repository has no service or package; the hooks run only on the owner's machine. Private vulnerability reporting is still enabled (section 7).
-- [ ] `CONTRIBUTING.md` and templates: `要確認` whether outside contributions are wanted.
+- [x] `CONTRIBUTING.md` and templates: not added. The owner decided on 2026-11-01 not to accept outside contributions in general.
 
 ## 5. Final checks
 - [ ] `hooks/tests/run.sh` passes on the commit to publish.
@@ -42,9 +42,9 @@ The repository is private. Making it public is the owner's decision and action. 
 - [ ] Private vulnerability reporting.
 - [ ] Secret scanning push protection.
 - [x] Dependabot alerts: not applicable, no dependencies.
-- [ ] Ruleset on `main`: no force push, no deletion. No required checks (no CI).
+- [ ] Ruleset on `main`: no force push, no deletion. No required checks (no CI) and no required pull request: the owner chooses a pull request or a direct merge and push case by case (2026-11-01).
 - [ ] Actions: disabled (no workflows).
-- [ ] Unused features turned off: Wiki, Projects, Discussions; Issues per the decision in section 4.
+- [ ] Unused features turned off: Wiki, Projects, Discussions, Issues (no outside contributions). Pull requests cannot be turned off; close outside ones.
 - [ ] Setting names checked against GitHub Docs on: date.
 
 ## 8. Verification
