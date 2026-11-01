@@ -1,4 +1,4 @@
-<!-- source: docs/en/SETUP.md blob 2b0783eaa687fdcfd1fe9542c85e5c1bfd967b26 -->
+<!-- source: docs/en/SETUP.md blob e773fc4c0142fdabc5e4e1fa2c5afc21f4a6bafc -->
 [English](../en/SETUP.md) | 日本語 · [目次に戻る](README.md)
 
 > この文書は[英語版](../en/SETUP.md)の翻訳。内容が異なる場合は英語版が優先する。
@@ -71,7 +71,7 @@ rm ~/.claude/rules/shared
 
 ## 推奨設定
 
-ルールは Claude への指針で、強制力はない。次の設定で 3 つのルールを強制できる：AI 帰属表示を付けないこと、push の前に必ず確認すること、課金につながりうるコマンドの前に確認すること。`~/.claude/settings.json` に統合し、ファイルごと置き換えないこと。
+ルールは Claude への指針で、強制力はない。次の設定で 4 つのルールを強制できる：AI 帰属表示を付けないこと、push の前に必ず確認すること、課金につながりうるコマンドの前に確認すること、デプロイとリモートの変更を止めること。`~/.claude/settings.json` に統合し、ファイルごと置き換えないこと。
 
 > [!WARNING]
 > 2.1.281 より前の Claude Code は `"attribution": false` を受け付けず、設定ファイル全体を読み飛ばす。古いバージョンでは代わりに `{ "attribution": { "commit": "", "pr": "", "sessionUrl": false } }` を使う。
@@ -93,6 +93,16 @@ rm ~/.claude/rules/shared
             "onFailure": "block"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/repos/claude-shared-rules/hooks/deploy-guard.sh",
+            "onFailure": "block"
+          }
+        ]
       }
     ]
   }
@@ -101,7 +111,10 @@ rm ~/.claude/rules/shared
 
 - `"attribution": false`：Claude Code が既定で付けるコミットのトレーラーと PR の帰属表示を消す。
 - `Bash(git push *)`：`git push` で始まるコマンドの前に、auto モードでも確認が入る。`git -C . push` のような別の書き方は拾えないので、あくまで安全網と考える。
-- `PreToolUse` フック：Bash コマンドと、ブラウザを含む MCP ツールの呼び出しの前に、毎回[課金ガード](#課金ガード)を走らせる。`"onFailure": "block"` で安全側に倒す。スクリプトが無い・壊れているときは、チェックなしで通すのではなくその呼び出しを止める。
+- 1 つ目の `PreToolUse` フック：Bash コマンドと、ブラウザを含む MCP ツールの呼び出しの前に、毎回[課金ガード](#課金ガード)を走らせる。
+- 2 つ目のフック：Bash コマンドの前に、毎回[デプロイガード](#デプロイガード)を走らせる。
+- `"onFailure": "block"` で安全側に倒す。スクリプトが無い・壊れているときは、チェックなしで通すのではなくその呼び出しを止める。
+- 両方のフックが反応したときは厳しい方の判定が勝つ。デプロイガードの deny は課金ガードの ask より優先される。
 
 ### 課金ガード
 
@@ -124,17 +137,45 @@ Bash コマンドで引っかかったときの動きは、権限モードで変
 
 - 有料の AI やクラウドサービスのパッケージを入れる・実行する（`pip install anthropic`、`npm i @anthropic-ai/sdk` など）
 - 有料 API やクラウド API のエンドポイントを含む（`api.anthropic.com`、`api.openai.com`、`api.cloudflare.com` など）
-- クラウドやホスティングの CLI を実行する（`aws`、`gcloud`、`az`、`firebase`、`vercel`、`wrangler` など。`npx` などの経由も含む）。`--version` や `--help` だけのものは除く
+- クラウドやホスティングの CLI を実行する（`aws`、`gcloud`、`az`、`firebase`、`vercel`、`wrangler` など。`npx` などの経由も含む）。`--version` や `--help` だけのものは除く。手元で完結する Wrangler のコマンドは確認なしで通す。`wrangler dev`、`types`、`docs`、`--version`、`--help` と、`--dry-run` か `--local` を付けたコマンドがこれにあたる。ただし `--remote` も付いていれば対象になる
 - インフラを適用する（`terraform apply`、`pulumi up`、`cdk deploy` など）
 
 次のものは検出できない：
 
 - 実行すると有料 API を呼ぶコード（環境変数に API キーがある状態での `python app.py` など）
 - 引数なしの `npm install` や `pip install -r requirements.txt` で入るパッケージ
-- スクリプト名の陰にあるコマンド（`npm run deploy` など）
+- スクリプト名の陰にあるコマンド（`npm run seed` など）。[デプロイガード](#デプロイガード)はスクリプトの中身まで見るが、対象はデプロイだけだ
 - 画面遷移の呼び出しを使わずに請求ページへ行くブラウザのクリック（ダッシュボード内のリンク経由など）。ルールでは引き続き禁止している
 
 `bash` が必要だ。`jq` が無いと権限モードを読めないため、引っかかったものはすべて止める。誤検出もありうる（`pip install openai` に触れたコミットメッセージなど）。検出対象を変えるときは、スクリプト冒頭のパターンを編集する。
+
+### デプロイガード
+
+[`hooks/deploy-guard.sh`](../../hooks/deploy-guard.sh) は、デプロイとリモートの変更を、auto や bypass を含むどの権限モードでも止める。[`rules/deployment.md`](../../rules/deployment.md) を強制するためのもので、対象のコマンドはそこに列挙してある。Claude がこれらを実行することはないので、確認は挟まない。
+
+次の Bash コマンドを止める：
+
+- バージョンをデプロイ・アップロード・昇格・ロールバックする（`wrangler deploy`、`vercel --prod`、`firebase deploy` など）。CLI に `--dry-run` があれば、それを付けたものは除く
+- リモートのリソースやシークレットを変える（`--remote` 付きの `wrangler` コマンドすべて、`wrangler secret put`、`supabase db push`、`terraform apply`、`kubectl apply` など）
+- クラウド CLI にログイン・ログアウトする（`wrangler login`、`gcloud auth login` など）
+- パッケージやイメージを公開する（`npm publish`、`docker push` など）
+- 上のどれかを実行するパッケージスクリプトを動かす。`npm run`、`pnpm`、`yarn`、`bun` では、作業ディレクトリ（`cd` や `--prefix` の後のもの）の `package.json` からスクリプトを読む。スクリプトが別のスクリプトを呼んでいれば、それもたどる
+- 名前に `deploy`、`publish`、`release`、`rollback` を含むパッケージスクリプト、Make のターゲット、スクリプトファイルを動かす。中身は問わない
+
+コマンドは `;`、`&&`、`|`、コマンド置換で区切って調べる。`npx`、`pnpm exec`、`sudo`、`env`、`bash -c`、`eval` の中も見る。クォートした引数やヒアドキュメントの本文は対象にならない。たとえば `wrangler deploy` に触れたコミットメッセージは止まらない。
+
+手元で完結するコマンドや読み取りだけのコマンドは通す。`wrangler dev`、`wrangler deploy --dry-run`、`wrangler types`、`wrangler d1 execute --local`、`terraform plan`、`--help` か `--version` だけのコマンドなどだ。
+
+`release-notes` という名前のスクリプトのような誤検出はありうる。その場合は入力欄で先頭に `!` を付けて自分で実行する。次のものは検出できない：
+
+- 実行するとデプロイするコード（デプロイらしい名前を持たない `node build.js` がクラウド API を呼ぶ場合など）
+- ホスティング事業者の連携でデプロイが走る Git の push。これは `Bash(git push *)` の確認でカバーする
+
+`bash` が必要だ。`jq` が無いと `package.json` を読めないため、スクリプトは名前だけで判定する。検出対象を変えるときは、`check_rules` の中の `rule` 行を編集する。どちらのガードを変えたときも、テストを走らせる：
+
+```bash
+bash ~/repos/claude-shared-rules/hooks/tests/run.sh
+```
 
 ### 請求の権限を持たない認証情報
 
@@ -227,7 +268,7 @@ WSL は Linux と同じで、WSL の中で本文の手順を実行すればよ�
 
 - **オプションのルール**は単独のファイルで、ジャンクションはディレクトリにしか使えない。ファイルのシンボリックリンク（開発者モードか管理者権限が必要）を張るか、ファイルをコピーする。
 - **チェック用スクリプト**：[共有ルールの導入](ADOPTING.md#チェック)のスクリプトは bash が必要。Git Bash か WSL で実行する。
-- **課金ガード**は bash スクリプトだ。Git Bash が入っていれば Claude Code はそれでフックを実行する。入っていないとフックが失敗し、Bash コマンドが止まる。
+- **課金ガードとデプロイガード**は bash スクリプトだ。Git Bash が入っていれば Claude Code はそれでフックを実行する。入っていないとフックが失敗し、Bash コマンドが止まる。
 
 未解決の点（`要確認`）：
 

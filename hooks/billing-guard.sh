@@ -51,6 +51,14 @@ cloud_re="${seg}${cloud_cli}(@[^[:space:]]+)?([[:space:]]|$)"
 iac_re="${seg}(terraform[[:space:]]+(apply|import)|tofu[[:space:]]+apply|pulumi[[:space:]]+up|cdk[[:space:]]+deploy|sam[[:space:]]+deploy|(serverless|sls)[[:space:]]+deploy)"
 # Only a whole command that just prints a cloud CLI's version or help is exempt.
 readonly_re="^[[:space:]]*${cloud_cli}[[:space:]]+(--version|-v|--help|-h|help)[[:space:]]*$"
+# Wrangler segments that stay on this machine are not asked about: dev, types,
+# docs, version or help, and any command with --dry-run or --local. A command
+# with --remote is never exempt; hooks/deploy-guard.sh denies it anyway.
+wrangler_local_re='wrangler(@[^[:space:]]+)?[[:space:]]+(dev|types|docs|--version|-v|--help|-h|help)([[:space:]][^;&|]*|$)|wrangler[^;&|]*[[:space:]]--(dry-run|local)([[:space:]=][^;&|]*|$)'
+cloud_text=$text
+if ! printf '%s' "$text" | grep -Eq -- '--remote|[[:space:]]-r([[:space:]]|$)'; then
+  cloud_text=$(printf '%s' "$text" | sed -E "s/${wrangler_local_re}/ /g")
+fi
 
 reasons=()
 if printf '%s' "$text" | grep -Eq "$install_re" && printf '%s' "$text" | grep -Eq "$package_re"; then
@@ -59,7 +67,7 @@ fi
 if printf '%s' "$text" | grep -Eq "$api_re"; then
   reasons+=("references a paid or cloud API endpoint")
 fi
-if printf '%s' "$text" | grep -Eq "$cloud_re" && ! printf '%s' "$text" | grep -Eq "$readonly_re"; then
+if printf '%s' "$cloud_text" | grep -Eq "$cloud_re" && ! printf '%s' "$text" | grep -Eq "$readonly_re"; then
   reasons+=("runs a cloud or hosting CLI that can create billable resources")
 fi
 if printf '%s' "$text" | grep -Eq "$iac_re"; then

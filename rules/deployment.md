@@ -7,6 +7,18 @@ Production changes reach users only through the owner. Claude never deploys and 
 - Deploys, uploads of new versions, and promotions or rollbacks of versions.
 - Commands that change remote resources: remote database migrations or writes, secret or variable changes, creating or deleting databases, buckets, queues, domains, routes, or access policies.
 - Logins or logouts of cloud CLIs (`wrangler login`, `gcloud auth login`, and similar).
+- Publishing packages or images to a registry (`npm publish`, `cargo publish`, `docker push`, and similar).
+
+Commands this covers, also through `npx`, `pnpm exec`, `bunx`, and similar runners:
+
+- Wrangler: `login`, `logout`, `deploy` and `publish` (except with `--dry-run`), `versions upload` and `versions deploy`, `rollback`, `secret`, `pages deploy`, any command with `--remote`, and resource writes (`d1`, `kv`, `r2`, `queues`, and others: `create`, `delete`, `put`, `execute`, `migrations apply`, ...) without `--local`.
+- Other hosts and clouds: `vercel` (bare, `deploy`, `--prod`, `promote`, `rollback`, `env add`), `netlify deploy`, `firebase deploy`, `fly deploy`, `supabase db push`, `supabase functions deploy`, `supabase secrets set`, `gcloud ... deploy`, and the create, update, or delete commands of `aws`, `gcloud`, `az`, `doctl`, `kubectl`, and `helm`.
+- Infrastructure as code: `terraform apply`, `terraform destroy`, `pulumi up`, `cdk deploy`, `sam deploy`, `serverless deploy`.
+- Scripts that run any of these: `npm run`, `pnpm`, `yarn`, and `bun` scripts, Make targets, and shell scripts.
+
+Allowed without asking: local and read-only commands such as `wrangler dev` (without `--remote`), `wrangler deploy --dry-run`, `wrangler types`, `--version`, and `--help`.
+
+The deploy guard hook (`hooks/deploy-guard.sh`) denies these commands in every permission mode. It also denies package scripts, Make targets, and files whose names contain `deploy`, `publish`, `release`, or `rollback`. Never work around it: no rewriting, splitting, or obfuscating a command so it no longer matches. A guard that misses a command does not make the command allowed.
 
 This applies in every permission mode and even when the owner approves the change. Prepare the exact commands, the expected output, and the checks afterwards, then ask the owner to run them in their own terminal or with a `!` command. Read-only commands against remote resources (listing, status, dry runs) still need the owner's confirmation if they need a login.
 

@@ -1,4 +1,4 @@
-<!-- source: docs/en/README.md blob 784b605d96d979f6feaf74e81bb023c7d92c894f -->
+<!-- source: docs/en/README.md blob 6f1a9c189379723b1be1663d3228decface952dd -->
 [English](../en/README.md) | 日本語 · [リポジトリの README](../../README.ja.md)
 
 > この文書は[英語版](../en/README.md)の翻訳。内容が異なる場合は英語版が優先する。
@@ -21,7 +21,7 @@
 |---|---|
 | [`rules/`](../../rules/) | Claude が全プロジェクトで読み込むルールファイル。ルールファイル以外は置かない |
 | [`templates/`](../../templates/) | 導入時にプロジェクトへコピーするファイル：`CLAUDE.md` の雛形、目次のテンプレート、文書ヘッダーの断片 |
-| [`hooks/`](../../hooks/) | ルールを強制するフックのスクリプト。`~/.claude/settings.json` に登録して使う。[課金ガード](SETUP.md#課金ガード)を参照 |
+| [`hooks/`](../../hooks/) | ルールを強制するフックのスクリプト。`~/.claude/settings.json` に登録して使う。[課金ガード](SETUP.md#課金ガード)と[デプロイガード](SETUP.md#デプロイガード)を参照 |
 | [`optional/`](../../optional/) | リンクしたユーザーにだけ効くオプションのルール。例：会話を関西弁にする |
 | [`prompts/`](../../prompts/) | プロジェクトの Claude Code セッションに実行させる作業手順。例：ドキュメントを読みやすく書き直す |
 
