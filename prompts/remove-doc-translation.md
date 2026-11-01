@@ -2,7 +2,7 @@
 
 Run this in a Claude Code session whose working directory is the target repository. Talk to the owner in Japanese. Follow every shared rule and the project's `CLAUDE.md`; this prompt adds the task, not new rules.
 
-The owner names the translation to remove when starting the task (for example Spanish, `es`). Below, `<lang>` means that code. Known targets: `audio-spectrum-app` and `lyrics-video-app` (Spanish).
+The owner names the translation to remove when starting the task (for example Spanish, `es`). Below, `<lang>` means that code.
 
 ## Goal
 

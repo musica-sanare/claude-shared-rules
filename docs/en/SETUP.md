@@ -43,7 +43,7 @@ Personal rules you do not share go directly in `~/.claude/rules/` as separate fi
 
 1. Start a **new** session in any project. Running sessions do not load new or changed rules.
 2. Run `/context`. Every file in `rules/` must appear under **Memory files**:
-   `overrides.md`, `language.md`, `documentation.md`, `writing-style.md`, `git.md`, `public-repo-safety.md`, `github-workflow.md`.
+   `overrides.md`, `language.md`, `documentation.md`, `writing-style.md`, `git.md`, `public-repo-safety.md`, `github-workflow.md`, `paid-services.md`, `deployment.md`.
 3. Optional: ask Claude which shared rule files it loaded. It should answer in Japanese.
 
 If files are missing, run `ls -la ~/.claude/rules/` and check that the link's target exists.
@@ -68,7 +68,7 @@ Then remove the [recommended settings](#recommended-settings) if you added them.
 
 ## Recommended settings
 
-Rules guide Claude but enforce nothing. These settings enforce two of them: no AI attribution, and a prompt before every push. Merge them into `~/.claude/settings.json`; do not replace the file.
+Rules guide Claude but enforce nothing. These settings enforce four of them: no AI attribution, a prompt before every push, a check before commands that may incur charges, and a block on deploys and remote changes. Merge them into `~/.claude/settings.json`; do not replace the file.
 
 > [!WARNING]
 > Claude Code before 2.1.281 rejects `"attribution": false` and skips the whole settings file. On older versions, use `{ "attribution": { "commit": "", "pr": "", "sessionUrl": false } }` instead.
@@ -78,12 +78,111 @@ Rules guide Claude but enforce nothing. These settings enforce two of them: no A
   "attribution": false,
   "permissions": {
     "ask": ["Bash(git push *)"]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/repos/claude-shared-rules/hooks/billing-guard.sh",
+            "onFailure": "block"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/repos/claude-shared-rules/hooks/deploy-guard.sh",
+            "onFailure": "block"
+          }
+        ]
+      }
+    ]
   }
 }
 ```
 
 - `"attribution": false` hides the commit trailer and PR attribution Claude Code adds by default.
 - `Bash(git push *)` makes Claude Code ask before any command that starts with `git push`, even in auto mode. It misses pushes written another way, such as `git -C . push`, so treat it as a safety net.
+- The first `PreToolUse` hook runs the [billing guard](#billing-guard) before every Bash command and MCP tool call, including the browser tools.
+- The second runs the [deploy guard](#deploy-guard) before every Bash command.
+- `"onFailure": "block"` fails closed: if a script is missing or broken, those calls are blocked instead of running unchecked.
+- When both hooks match, the stricter decision wins: the deploy guard's deny beats the billing guard's ask.
+
+### Billing guard
+
+[`hooks/billing-guard.sh`](../../hooks/billing-guard.sh) stops tool calls that may lead to charges until you decide. It enforces [`rules/paid-services.md`](../../rules/paid-services.md). It has two parts:
+
+- **Billing pages and tools are always blocked**, in every permission mode. This covers an MCP tool call whose `url` has a billing, plan, upgrade, subscription, payment, checkout, purchase, or invoice path, such as a Cloudflare or Google Cloud billing page in the browser. It also covers an MCP tool whose name contains such a word. Only you change plans or billing.
+- **Bash commands that may incur charges** are asked about or blocked, depending on the permission mode.
+
+For Bash commands, what happens depends on the permission mode:
+
+| Permission mode | Result of a match |
+|---|---|
+| `default`, `plan`, `acceptEdits` | Claude Code asks you to approve or reject the command. |
+| `auto`, `bypassPermissions`, `dontAsk` | The command is blocked. Claude must tell you what it wanted to run. |
+
+> [!WARNING]
+> In auto mode, a hook's "ask" is resolved without showing you a prompt (observed on 2026-10-31). That is why the guard blocks instead. To run a blocked command, type it yourself with a `!` prefix in the prompt box, or switch to default mode.
+
+It matches when a command:
+
+- installs or runs a package for a paid AI or cloud service, such as `pip install anthropic` or `npm i @anthropic-ai/sdk`;
+- contains a paid or cloud API endpoint, such as `api.anthropic.com`, `api.openai.com`, or `api.cloudflare.com`;
+- runs a cloud or hosting CLI (`aws`, `gcloud`, `az`, `firebase`, `vercel`, `wrangler`, and others), also through `npx` and similar runners, except a bare `--version` or `--help`. Wrangler commands that stay local pass without a prompt: `wrangler dev`, `types`, `docs`, `--version`, `--help`, and any command with `--dry-run` or `--local`, unless the command also has `--remote`;
+- applies infrastructure (`terraform apply`, `pulumi up`, `cdk deploy`, and others).
+
+It cannot see:
+
+- code that calls a paid API when run, such as `python app.py` with an API key in the environment;
+- packages pulled in by a plain `npm install` or `pip install -r requirements.txt`;
+- commands hidden behind a script name, such as `npm run seed`. The [deploy guard](#deploy-guard) does look inside scripts, but only for deploys;
+- browser clicks that reach a billing page without a navigation call, such as a link inside a dashboard. The rule still forbids this.
+
+It needs `bash`. Without `jq` it cannot read the permission mode, so every match is blocked. A match can be a false positive, such as a commit message that mentions `pip install openai`. To change what it catches, edit the patterns at the top of the script.
+
+### Deploy guard
+
+[`hooks/deploy-guard.sh`](../../hooks/deploy-guard.sh) blocks deploys and remote changes in every permission mode, including auto and bypass. It enforces [`rules/deployment.md`](../../rules/deployment.md), which lists the covered commands. Claude never runs them, so there is nothing to ask.
+
+It blocks a Bash command that:
+
+- deploys, uploads, promotes, or rolls back a version, such as `wrangler deploy`, `vercel --prod`, or `firebase deploy`, except with `--dry-run` where the CLI has one;
+- changes remote resources or secrets, such as any `wrangler` command with `--remote`, `wrangler secret put`, `supabase db push`, `terraform apply`, or `kubectl apply`;
+- logs a cloud CLI in or out, such as `wrangler login` or `gcloud auth login`;
+- publishes a package or image, such as `npm publish` or `docker push`;
+- runs a package script that does any of the above. For `npm run`, `pnpm`, `yarn`, and `bun`, the guard reads the script from `package.json` in the working directory (after `cd` or `--prefix`), and follows scripts that call other scripts;
+- runs a package script, Make target, or script file whose name contains `deploy`, `publish`, `release`, or `rollback`, whatever it contains.
+
+It splits a command at `;`, `&&`, `|`, and command substitutions, and looks through `npx`, `pnpm exec`, `sudo`, `env`, `bash -c`, and `eval`. Quoted arguments and heredoc bodies, such as a commit message that mentions `wrangler deploy`, do not match.
+
+Local and read-only commands pass: `wrangler dev`, `wrangler deploy --dry-run`, `wrangler types`, `wrangler d1 execute --local`, `terraform plan`, and any command with only `--help` or `--version`.
+
+A false positive is possible, such as a script named `release-notes`. Run it yourself with a `!` prefix in the prompt box. It cannot see:
+
+- code that deploys when run, such as `node build.js` calling a cloud API without a deploy-like name;
+- Git pushes that trigger a deploy through the hosting provider. The push prompt from `Bash(git push *)` covers those.
+
+It needs `bash`. Without `jq` it cannot read `package.json`, so scripts are checked by name only. To change what it catches, edit the `rule` lines in `check_rules`. Run the tests after any change to either guard:
+
+```bash
+bash ~/repos/claude-shared-rules/hooks/tests/run.sh
+```
+
+### Credentials without billing access
+
+Give Claude only credentials that cannot change billing. This is the last line of defense: the rule and the hook can miss a path, but a credential without billing permission cannot change a plan by any path.
+
+- **Tokens and keys**: create them with the minimum permissions the task needs. Leave out billing, plan, payment, and account-admin permissions. For example, a Cloudflare API token without the Billing permission, or a Google Cloud service account without billing roles.
+- **Browser sign-ins**: do not sign in to an account that can change billing in a browser Claude controls (the built-in browser or Claude in Chrome). If Claude needs a dashboard, use a member account without billing access.
+- **Local CLI logins**: a CLI that you logged in to as an account owner (for example `wrangler login` or `gcloud auth login`) acts with your full rights when Claude runs it. Prefer a scoped token in an environment variable for the projects Claude works on.
+
+Claude asks for credentials this way too: it names the minimum permissions and excludes billing ([`rules/paid-services.md`](../../rules/paid-services.md)).
 
 ## Optional rules
 
@@ -166,6 +265,7 @@ WSL works like Linux: follow the main instructions inside WSL. For native Window
 
 - **Optional rules** are single files, and a junction works only for directories. Use a file symlink (needs Developer Mode or administrator rights) or copy the file.
 - **Check scripts** in [Adopting the shared rules](ADOPTING.md#checks) need bash. Run them in Git Bash or WSL.
+- **Billing guard and deploy guard** are bash scripts. Claude Code runs hooks with Git Bash when it is installed; without it, the hooks fail and block Bash commands.
 
 Open questions (`要確認`):
 

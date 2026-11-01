@@ -3,7 +3,8 @@
 ## Authority
 
 - Commits need the owner's explicit approval each time. After the owner approves a specific proposed commit (message and file list), stage and create exactly that commit and report its hash. An approval covers only the commit that was reviewed. Stage files only as part of an approved commit.
-- The owner does pushes, branch creation and switching, remote changes, history rewrites, and deploys. Do them only when the owner explicitly asks for that specific action.
+- The owner does pushes, branch creation and switching, remote changes, and history rewrites. Do them only when the owner explicitly asks for that specific action.
+- Claude never runs deploy commands, even when asked. A push to a production branch is a deploy: say so when asking. See `deployment.md`.
 - Never rewrite or delete history unless explicitly instructed.
 
 ## Before proposing a commit
