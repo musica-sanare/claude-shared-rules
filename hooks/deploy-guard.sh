@@ -1,6 +1,7 @@
 #!/bin/bash
 # PreToolUse hook enforcing rules/deployment.md.
-# Denies, in every permission mode, Bash commands that deploy or change remote
+# Denies, in every permission mode, Bash commands (and commands typed into the
+# Terminal panel) that deploy or change remote
 # resources: deploys, version uploads and rollbacks, secret changes, remote
 # writes, cloud CLI logins, and package publishing. Package-manager scripts
 # (npm, pnpm, yarn, bun) are looked up in package.json and checked as well;
@@ -22,7 +23,11 @@ else
     awk '{ gsub(/\\n/, "\n"); gsub(/\\t/, "\t"); gsub(/\\"/, "\""); gsub(/\\\\/, "\\"); print }')
   cwd=
 fi
-[ "$tool" = Bash ] || exit 0
+# Commands typed into the Terminal panel run like Bash commands.
+case $tool in
+  Bash | mcp__*__run_in_terminal) ;;
+  *) exit 0 ;;
+esac
 [ -n "$cwd" ] || cwd=$PWD
 
 SEP=$'\037'  # between words of a segment

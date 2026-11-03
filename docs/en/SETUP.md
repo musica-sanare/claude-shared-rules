@@ -92,7 +92,7 @@ Rules guide Claude but enforce nothing. These settings enforce four of them: no 
         ]
       },
       {
-        "matcher": "Bash",
+        "matcher": "Bash|mcp__.*__run_in_terminal",
         "hooks": [
           {
             "type": "command",
@@ -109,7 +109,7 @@ Rules guide Claude but enforce nothing. These settings enforce four of them: no 
 - `"attribution": false` hides the commit trailer and PR attribution Claude Code adds by default.
 - `Bash(git push *)` makes Claude Code ask before any command that starts with `git push`, even in auto mode. It misses pushes written another way, such as `git -C . push`, so treat it as a safety net.
 - The first `PreToolUse` hook runs the [billing guard](#billing-guard) before every Bash command and MCP tool call, including the browser tools.
-- The second runs the [deploy guard](#deploy-guard) before every Bash command.
+- The second runs the [deploy guard](#deploy-guard) before every Bash command and every command typed into the Terminal panel.
 - `"onFailure": "block"` fails closed: if a script is missing or broken, those calls are blocked instead of running unchecked.
 - When both hooks match, the stricter decision wins: the deploy guard's deny beats the billing guard's ask.
 
@@ -180,7 +180,7 @@ It needs `bash`. Without `jq` it cannot read the permission mode, so every match
 
 [`hooks/deploy-guard.sh`](../../hooks/deploy-guard.sh) blocks deploys and remote changes in every permission mode, including auto and bypass. It enforces [`rules/deployment.md`](../../rules/deployment.md), which lists the covered commands. Claude never runs them, so there is nothing to ask.
 
-It blocks a Bash command that:
+It blocks a Bash command, or a command typed into the Terminal panel, that:
 
 - deploys, uploads, promotes, or rolls back a version, such as `wrangler deploy`, `vercel --prod`, or `firebase deploy`, except with `--dry-run` where the CLI has one;
 - changes remote resources or secrets, such as any `wrangler` command with `--remote`, `wrangler secret put`, `supabase db push`, `terraform apply`, or `kubectl apply`;

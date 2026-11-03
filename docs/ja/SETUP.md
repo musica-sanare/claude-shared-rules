@@ -1,4 +1,4 @@
-<!-- source: docs/en/SETUP.md blob fc325aaaee6d4ee2e1bb69ec64460647eb52642c -->
+<!-- source: docs/en/SETUP.md blob 30947557da98efff6637b353bb513a381d829960 -->
 [English](../en/SETUP.md) | 日本語 · [目次に戻る](README.md)
 
 > この文書は[英語版](../en/SETUP.md)の翻訳。内容が異なる場合は英語版が優先する。
@@ -95,7 +95,7 @@ rm ~/.claude/rules/shared
         ]
       },
       {
-        "matcher": "Bash",
+        "matcher": "Bash|mcp__.*__run_in_terminal",
         "hooks": [
           {
             "type": "command",
@@ -112,7 +112,7 @@ rm ~/.claude/rules/shared
 - `"attribution": false`：Claude Code が既定で付けるコミットのトレーラーと PR の帰属表示を消す。
 - `Bash(git push *)`：`git push` で始まるコマンドの前に、auto モードでも確認が入る。`git -C . push` のような別の書き方は拾えないので、あくまで安全網と考える。
 - 1 つ目の `PreToolUse` フック：Bash コマンドと、ブラウザを含む MCP ツールの呼び出しの前に、毎回[課金ガード](#課金ガード)を走らせる。
-- 2 つ目のフック：Bash コマンドの前に、毎回[デプロイガード](#デプロイガード)を走らせる。
+- 2 つ目のフック：Bash コマンドと、ターミナルパネルに打ち込むコマンドの前に、毎回[デプロイガード](#デプロイガード)を走らせる。
 - `"onFailure": "block"` で安全側に倒す。スクリプトが無い・壊れているときは、チェックなしで通すのではなくその呼び出しを止める。
 - 両方のフックが反応したときは厳しい方の判定が勝つ。デプロイガードの deny は課金ガードの ask より優先される。
 
@@ -183,7 +183,7 @@ echo 'server-name' >> ~/.claude/billing-guard-mcp-allowlist
 
 [`hooks/deploy-guard.sh`](../../hooks/deploy-guard.sh) は、デプロイとリモートの変更を、auto や bypass を含むどの権限モードでも止める。[`rules/deployment.md`](../../rules/deployment.md) を強制するためのもので、対象のコマンドはそこに列挙してある。Claude がこれらを実行することはないので、確認は挟まない。
 
-次の Bash コマンドを止める：
+次の Bash コマンドと、ターミナルパネルに打ち込む次のコマンドを止める：
 
 - バージョンをデプロイ・アップロード・昇格・ロールバックする（`wrangler deploy`、`vercel --prod`、`firebase deploy` など）。CLI に `--dry-run` があれば、それを付けたものは除く
 - リモートのリソースやシークレットを変える（`--remote` 付きの `wrangler` コマンドすべて、`wrangler secret put`、`supabase db push`、`terraform apply`、`kubectl apply` など）

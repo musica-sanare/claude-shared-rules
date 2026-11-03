@@ -131,6 +131,12 @@ deny 'helm upgrade app chart'
 deny 'gh secret set TOKEN'
 deny 'docker push img:latest'
 
+# Commands typed into the Terminal panel are checked like Bash commands.
+TOOL=mcp__terminal__run_in_terminal deny 'npx wrangler deploy'
+TOOL=mcp__terminal__run_in_terminal deny 'npm run ship' "$fixture/app"
+TOOL=mcp__terminal__run_in_terminal pass 'npm run dev' "$fixture/app"
+TOOL=mcp__Claude_Browser__navigate pass '{"url":"https://example.com/deploy"}'
+
 # Package publishing.
 deny 'npm publish'
 deny 'pnpm publish --access public'

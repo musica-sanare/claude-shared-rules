@@ -33,4 +33,4 @@ Defense in three layers, with failing safe preferred over convenience:
 - More prompts, by design. The workaround for a false positive is the Edit or Write tool for file edits, or the owner running the command with `!`.
 - Running tests or scripts in a project that keeps an API key in `.env` asks every time. Keeping keys out of projects Claude works on avoids this.
 - The guard still cannot see Write and Edit tool calls, imports reached indirectly, browser clicks, or sessions where hooks do not run. The account settings and the rule cover those.
-- The deploy guard matches Bash only, so commands typed into the Terminal panel bypass it. Extending it is open (`要確認`).
+- The deploy guard now also checks commands typed into the Terminal panel. Its hook matcher in `~/.claude/settings.json` must include `mcp__.*__run_in_terminal` for this to take effect.
