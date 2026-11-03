@@ -39,69 +39,10 @@ deny() { # reason
   exit 0
 }
 
-# Splits shell text into simple-command segments, one per output line, words
-# joined by SEP. Quotes are removed; ; & | ( ) $( and backticks end a segment;
-# command substitutions become segments of their own; heredoc bodies and
-# comments are dropped.
-lexer='
-function flushw() { if (inw) seg = (seg == "" ? w : seg SEP w); w = ""; inw = 0 }
-function flushs() { flushw(); if (seg != "") print seg; seg = "" }
-function push(t) { sp++; st[sp] = t; sq[sp] = q; q = "" }
-function pop() { q = sq[sp]; sp--; if (q != "") inw = 1 }
-{ s = s $0 "\n" }
-END {
-  n = length(s); q = ""; sp = 0; hn = 0; i = 1
-  while (i <= n) {
-    c = substr(s, i, 1)
-    if (q == "\047") { if (c == "\047") q = ""; else w = w (c == "\n" ? NLW : c); i++; continue }
-    if (q == "\"") {
-      if (c == "\\") {
-        d = substr(s, i + 1, 1)
-        if (d == "\n") { i += 2; continue }
-        if (d ~ /[$`"\\]/) { w = w d; i += 2; continue }
-        w = w c; i++; continue
-      }
-      if (c == "\"") { q = ""; i++; continue }
-      if (c == "$" && substr(s, i + 1, 1) == "(") { flushs(); push("("); i += 2; continue }
-      if (c == "`") { flushs(); push("`"); i++; continue }
-      w = w (c == "\n" ? NLW : c); i++; continue
-    }
-    if (c == "\\") { d = substr(s, i + 1, 1); if (d != "\n") { w = w d; inw = 1 } i += 2; continue }
-    if (c == "\047" || c == "\"") { q = c; inw = 1; i++; continue }
-    if (c == " " || c == "\t") { flushw(); i++; continue }
-    if (c == "#" && !inw) { while (i <= n && substr(s, i, 1) != "\n") i++; continue }
-    if (c == "\n") {
-      flushs(); i++
-      for (h = 1; h <= hn; h++) {
-        while (i <= n) {
-          e = index(substr(s, i), "\n")
-          if (e == 0) { line = substr(s, i); i = n + 1 } else { line = substr(s, i, e - 1); i += e }
-          sub(/^\t+/, "", line)
-          if (line == hd[h]) break
-        }
-      }
-      hn = 0; continue
-    }
-    if (c == "<" && substr(s, i + 1, 1) == "<") {
-      flushw()
-      if (substr(s, i + 2, 1) == "<") { i += 3; continue }
-      i += 2; if (substr(s, i, 1) == "-") i++
-      while (substr(s, i, 1) ~ /[ \t]/) i++
-      dl = ""
-      while (i <= n) { d = substr(s, i, 1); if (d ~ /[ \t\n;&|<>()]/) break; if (d != "\047" && d != "\"" && d != "\\") dl = dl d; i++ }
-      if (dl != "") hd[++hn] = dl
-      continue
-    }
-    if (c == "$" && substr(s, i + 1, 1) == "(") { flushs(); push("("); i += 2; continue }
-    if (c == "`") { flushs(); if (sp > 0 && st[sp] == "`") pop(); else push("`"); i++; continue }
-    if (c == ")") { flushs(); if (sp > 0 && st[sp] == "(") pop(); i++; continue }
-    if (c ~ /[;&|(]/) { flushs(); i++; continue }
-    w = w c; inw = 1; i++
-  }
-  flushs()
-}'
+lexer=$(cd "$(dirname "$0")" && pwd)/lib/shell-lex.awk
+[ -r "$lexer" ] || deny "the shell lexer $lexer is missing, so the command cannot be checked."
 
-lex() { printf '%s' "$1" | awk -v SEP="$SEP" -v NLW="$NLW" "$lexer"; }
+lex() { printf '%s' "$1" | awk -v SEP="$SEP" -v NLW="$NLW" -f "$lexer"; }
 
 lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
 

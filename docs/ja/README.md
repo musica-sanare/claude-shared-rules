@@ -1,4 +1,4 @@
-<!-- source: docs/en/README.md blob 767a0a19e569a9ab919e573ea6cfd188a0cfd781 -->
+<!-- source: docs/en/README.md blob 8725769b5e2e38d2d8e092b97916906b757dc52b -->
 [English](../en/README.md) | 日本語 · [リポジトリの README](../../README.ja.md)
 
 > この文書は[英語版](../en/README.md)の翻訳。内容が異なる場合は英語版が優先する。
@@ -31,3 +31,4 @@
 | 文書 | 内容 |
 |---|---|
 | [公開用チェックリスト](../working/PUBLIC_RELEASE.md)（英語のみ） | このリポジトリ自身の公開作業の進み具合 |
+| [設計判断の記録](../working/DECISIONS.md)（英語のみ） | ADR。課金ガードを安全側に倒す理由など |

@@ -28,3 +28,4 @@ How to install the shared Claude Code rules, adopt them in a project, and overri
 | Document | Description |
 |---|---|
 | [Public release checklist](../working/PUBLIC_RELEASE.md) | Status of this repository's own public release. |
+| [Decisions](../working/DECISIONS.md) | Architecture decision records, such as why the billing guard fails safe. |
